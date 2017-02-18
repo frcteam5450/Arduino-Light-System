@@ -100,7 +100,7 @@ void loop() {
     delay(1000);
   }
   else if (state == 5450){ //victory
-    theaterChase(strip1.Color(0,50,0),50); theater chase green then white
+    theaterChase(strip1.Color(0,50,0),50); //theater chase green then white
     theaterChase(strip1.Color(20,20,20),50);
   }
 }
