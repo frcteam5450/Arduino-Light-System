@@ -2,10 +2,15 @@
 #ifdef __AVR__
 #include <avr/power.h>
 #endif
-
-#define PIN_ONE 6 //these numbers correspond to the led strip ports
-#define PIN_TWO 5
-#define PIN_THREE 3
+/*
+ * original values
+ * 6
+ * 5
+ * 3
+ */
+#define PIN_ONE 9 // testing led//these numbers correspond to the led strip ports
+#define PIN_TWO 10 //strip
+#define PIN_THREE 11 //not connected
 
 
 // Parameter 1 = number of pixels in strip
@@ -16,10 +21,10 @@
 //   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
 //   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
 //   NEO_RGBW    Pixels are wired for RGBW bitstream (NeoPixel RGBW products)
-Adafruit_NeoPixel strip1 = Adafruit_NeoPixel(60, PIN_ONE, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel strip2 = Adafruit_NeoPixel(60, PIN_TWO, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip1 = Adafruit_NeoPixel(1, PIN_ONE, NEO_GRB + NEO_KHZ800); //default 60 leds
+Adafruit_NeoPixel strip2 = Adafruit_NeoPixel(59, PIN_TWO, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel strip3 = Adafruit_NeoPixel(60, PIN_THREE, NEO_GRB + NEO_KHZ800);
-
+strip1.numPixels
 // IMPORTANT: To reduce NeoPixel burnout risk, add 1000 uF capacitor across
 // pixel power leads, add 300 - 500 Ohm resistor on first pixel's data input
 // and minimize distance between Arduino and first pixel.  Avoid connecting
@@ -33,9 +38,15 @@ void setup() {
 
   Serial.begin(9600);
 
-  pinMode(0, INPUT); //sets the dio pin values that connect the Roborio with the Arduino
-  pinMode(1, INPUT);
-  pinMode(2, INPUT);
+/*
+ * previous values
+ * 0
+ * 1
+ * 2
+ */
+  pinMode(2, INPUT); //sets the dio pin values that connect the Roborio with the Arduino
+  pinMode(3, INPUT);
+  pinMode(4, INPUT);
 
   strip1.begin();
   strip2.begin();
@@ -51,10 +62,10 @@ bool in1;
 bool in2;
 
 void loop() {
-  state = 0; //reset
-  in0 = (digitalRead(0) == HIGH);
-  in1 = (digitalRead(1) == HIGH);
-  in2 = (digitalRead(2) == HIGH);
+  state = 0; //reset the state each time
+  in0 = digitalRead(3);
+  in1 = digitalRead(4);
+  in2 = digitalRead(5);
   if (!in0 && !in1 && !in2) { //all pins are off 000
     state = 0; //off
 
@@ -80,70 +91,54 @@ void loop() {
     state = 5450; //victory
 
   }
-  //check if the light is on
-  // Some example procedures showing how to display to the pixels:
+  
+  /*
+   * This determines what color patterns
+   * will be played depending on the current circumstances
+   */
   if (state == 0) { // Robot is off
-    colorAll(strip1.Color(0, 0, 0)); //all leds turn off
-
-  } else if (state == 1) { // Mechanum drive is enabled
-    colorFlash(strip1.Color(15, 0, 15), strip1.Color(0, 0, 0), 1000); //all leds flash magenta
-
-  } else if (state == 2) { // Traction drive is enabled
-    colorFlash(strip1.Color(0, 30, 0), strip1.Color(0, 0, 0), 1000); //all leds flash green
-
-  } else if (state == 3) { // robot is currently shooting fuel
-    theaterChase(strip1.Color(10, 10, 0), 500); //theater chase yellow
-
-  } else if (state == 4) { // robot is aiming
-    colorFlash(strip1.Color(20, 20, 0), strip1.Color(0, 0, 0), 1000); //flashing yellow
-
-  } else if (state == 5) { // robot is ready for gear
-    colorDance(strip1.Color(0, 50, 0), 500); //leds dance green
-
-  } else if (state == 6) { // robot is climbing
-    colorWipe(strip1.Color(0, 20, 10), 50); //wipe turquoise
-    colorWipe(strip1.Color(10, 10, 10), 50); //wipe white
-    colorWipeReverse(strip1.Color(0, 20, 10), 50); //reverse wipe turquoise
-    colorWipeReverse(strip1.Color(10, 10, 10), 50); //reverse wipe white
-
-  } else if (state == 5450) { //We won the match! Victory!
-    rainbowCycle(20); //rainbow! :D
-
-
+    colorAll(strip1.Color(0,0,0);
+    
+  }else if(state == 1){ // Mechanum drive is enabled
+    colorFlash(strip1.Color(25,0,25),strip1.Color(0,0,0),500);
+    
+  }else if(state == 2){ // Traction drive is enabled
+    colorFlash(strip1.Color(0,50,0),strip1.Color(0,0,0),500);
+    
+  }else if(state == 3){ // robot is currently shooting fuel
+    colorDance(strip1.Color(25,25,0),250);
+    
+  }else if(state == 4){ // robot is aiming
+    colorFlash(strip1.Color(25,25,0),strip1.Color(0,0,0),500);
+    
+  }else if(state == 5){ // robot is ready for gear
+    colorDance(strip1.Color(0,50,0),500);
+    
+  }else if(state == 6){ // robot is climbing
+    colorFlash(strip1.Color(0,25,50),strip1.Color(50,25,0),500);
+    
+  }else if(state == 5450){ //We won the match! Victory!
+    rainbowCycle(1);
+    
   }
 }
 
-// Fill the dots one after the other with a color
 
-
-void colorWipe(uint32_t c, uint8_t wait) {
-
-  for (uint16_t i = 0; i < strip1.numPixels(); i++) {
-    strip1.setPixelColor(i, c);
-    strip2.setPixelColor(i, c);
-    strip3.setPixelColor(i, c);
-    strip1.show();
-    strip2.show();
-    strip3.show();
-    delay(wait);
-  }
-}
-// Fill the dots in reverse
-void colorWipeReverse(uint32_t c, uint8_t wait) {
-  for (uint16_t i = strip1.numPixels(); i > 0; i--) {
-    strip1.setPixelColor(i, c);
-    strip2.setPixelColor(i, c);
-    strip3.setPixelColor(i, c);
-    strip1.show();
-    strip2.show();
-    strip3.show();
-    delay(wait);
-  }
-}
+/*
+ *This function flashes all leds two different colors
+ *with the parameter "wait" as the delay in milliseconds
+ *in between color changes. It first colors all leds
+ *the color value of "c1" then waits before turning all
+ *leds to the color value of "c2" and waits again
+ */
 void colorFlash(uint32_t c1, uint32_t c2, uint8_t wait) {
   for (uint16_t i = strip1.numPixels(); i > 0; i--) {
     strip1.setPixelColor(i, c1);
+  }
+  for (uint16_t i = strip2.numPixels(); i > 0; i--) {
     strip2.setPixelColor(i, c1);
+  }
+  for (uint16_t i = strip3.numPixels(); i > 0; i--) {
     strip3.setPixelColor(i, c1);
   }
   strip1.show();
@@ -152,7 +147,11 @@ void colorFlash(uint32_t c1, uint32_t c2, uint8_t wait) {
   delay(wait);
   for (uint16_t i = strip1.numPixels(); i > 0; i--) {
     strip1.setPixelColor(i, c2);
+  }
+  for (uint16_t i = strip2.numPixels(); i > 0; i--) {
     strip2.setPixelColor(i, c2);
+  }
+  for (uint16_t i = strip3.numPixels(); i > 0; i--) {
     strip3.setPixelColor(i, c2);
   }
   strip1.show();
@@ -160,41 +159,40 @@ void colorFlash(uint32_t c1, uint32_t c2, uint8_t wait) {
   strip3.show();
   delay(wait);
 }
+/*
+ * This function sets all leds in the strips to the parameter "c"
+ * which is the color value
+ */
 void colorAll(uint32_t c) {
   for (uint16_t i = 0; i < strip1.numPixels(); i++) {
     strip1.setPixelColor(i, c);
+  }
+  for (uint16_t i = 0; i < strip2.numPixels(); i++) {
     strip2.setPixelColor(i, c);
-    strip3.setPixelColor(i, c);
+  }
+  for (uint16_t i = 0; i < strip2.numPixels(); i++) {
+    strip2.setPixelColor(i, c);
   }
   strip1.show();
   strip2.show();
   strip3.show();
 }
 
-void rainbow(uint8_t wait) {
+/*
+ * This function basically cycles through the rainbow on the LEDs
+ * and waits between changing colors based on the parameter "wait"
+ */
+void rainbowCycle(uint8_t wait){
   uint16_t i, j;
 
-  for (j = 0; j < 256; j++) {
-    for (i = 0; i < strip1.numPixels(); i++) {
-      strip1.setPixelColor(i, Wheel((i + j) & 255));
-      strip2.setPixelColor(i, Wheel((i + j) & 255));
-      strip3.setPixelColor(i, Wheel((i + j) & 255));
-    }
-    strip1.show();
-    strip2.show();
-    strip3.show();
-    delay(wait);
-  }
-}
-
-// Slightly different, this makes the rainbow equally distributed throughout
-void rainbowCycle(uint8_t wait) {
-  uint16_t i, j;
-
-  for (j = 0; j < 256 * 5; j++) { // 5 cycles of all colors on wheel
+  for (j = 0; j < 256; j++) { 
     for (i = 0; i < strip1.numPixels(); i++) {
       strip1.setPixelColor(i, Wheel(((i * 256 / strip1.numPixels()) + j) & 255));
+    }
+    for (i = 0; i < strip2.numPixels(); i++) {
       strip2.setPixelColor(i, Wheel(((i * 256 / strip2.numPixels()) + j) & 255));
+    }
+    for (i = 0; i < strip3.numPixels(); i++) {
       strip3.setPixelColor(i, Wheel(((i * 256 / strip3.numPixels()) + j) & 255));
     }
     strip1.show();
@@ -204,34 +202,20 @@ void rainbowCycle(uint8_t wait) {
   }
 }
 
-//Theatre-style crawling lights.
-void theaterChase(uint32_t c, uint8_t wait) {
-  for (int q = 0; q < 3; q++) {
-    for (uint16_t i = 0; i < strip1.numPixels(); i = i + 3) {
-      strip1.setPixelColor(i + q, c);  //turn every third pixel on
-      strip2.setPixelColor(i + q, c);
-      strip3.setPixelColor(i + q, c);
+/*
+ * This function colors every other LED the color value of "c" and waits
+ * the parameter "wait" in milliseconds before coloring those LEDs off
+ * and colors the next set of LEDs
+ */
+void colorDanceStrip(uint32_t c, uint8_t wait) {
+  for (int q = 0; q < 2; q++) {
+    for (uint16_t i = 0; i < strip1.numPixels(); i += 2) {
+      strip1.setPixelColor(i + q, c);  //turn every second pixel on
     }
-    strip1.show();
-    strip2.show();
-    strip3.show();
-
-    delay(wait);
-
-    for (uint16_t i = 0; i < strip1.numPixels(); i += 3) {
-      strip1.setPixelColor(i + q, 0);      //turn every third pixel off
-      strip2.setPixelColor(i + q, 0);
-      strip3.setPixelColor(i + q, 0);
-    }
-  }
-}
-
-void colorDance(uint32_t c, uint8_t wait) {
-  for (int j = 0; j < 2; j++) { //do 2 cycles of dancing
-    for (int q = 0; q < 2; q++) {
-      for (uint16_t i = 0; i < strip1.numPixels(); i += 2) {
-        strip1.setPixelColor(i + q, c);  //turn every second pixel on
+      for (uint16_t i = 0; i < strip2.numPixels(); i += 2) {
         strip2.setPixelColor(i + q, c);
+      }
+      for (uint16_t i = 0; i < strip3.numPixels(); i += 2) {
         strip3.setPixelColor(i + q, c);
       }
       strip1.show();
@@ -241,38 +225,21 @@ void colorDance(uint32_t c, uint8_t wait) {
       delay(wait);
 
       for (uint16_t i = 0; i < strip1.numPixels(); i = i + 3) {
-        strip1.setPixelColor(i + q, 0);      //turn every third pixel off
-        strip2.setPixelColor(i + q, 0);
-        strip3.setPixelColor(i + q, 0);
+        strip1.setPixelColor(i + q, 0);      //turn every second pixel off
       }
-    }
-  }
-}
-
-//Theatre-style crawling lights with rainbow effect
-void theaterChaseRainbow(uint8_t wait) {
-  for (int j = 0; j < 256; j++) {   // cycle all 256 colors in the wheel
-    for (int q = 0; q < 3; q++) {
-      for (uint16_t i = 0; i < strip1.numPixels(); i += 3) {
-        strip1.setPixelColor(i + q, Wheel((i + j) % 255));
-        strip2.setPixelColor(i + q, Wheel((i + j) % 255));
-        strip3.setPixelColor(i + q, Wheel((i + j) % 255)); //turn every third pixel on
+      for (uint16_t i = 0; i < strip2.numPixels(); i = i + 3) {
+        strip2.setPixelColor(i + q, 0);
+      }
+      for (uint16_t i = 0; i < strip3.numPixels(); i = i + 3) {
+        strip3.setPixelColor(i + q, 0);
       }
       strip1.show();
       strip2.show();
       strip3.show();
 
       delay(wait);
-
-      for (uint16_t i = 0; i < strip1.numPixels(); i += 3) {
-        strip1.setPixelColor(i + q, 0);      //turn every third pixel off
-        strip2.setPixelColor(i + q, 0);
-        strip3.setPixelColor(i + q, 0);
-      }
     }
-  }
 }
-
 // Input a value 0 to 255 to get a color value.
 // The colours are a transition r - g - b - back to r.
 uint32_t Wheel(byte WheelPos) {
